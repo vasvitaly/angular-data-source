@@ -71,10 +71,12 @@ $scope.dataSource = new vvvDataSource(Model, [options]);
     You can use your own registered filters using their name double underscored as key in filters.
     Example:
      Let have own filter registered as 'startingWith'. 
-     filters `
+     filters 
+```
       {
         __startingWith: anyTypeValue
       }
+```
      will use startingWith filter and send to it anyTypeValue as second argument.
 
   * *sorting* - object, `{fieldId: 'string' desc: boolean}`, used for ordering rows in *filteredRows()* and in server request.
@@ -92,7 +94,12 @@ dataSource.query([options], [callBackFunc])
 + **options** - object, base options used for quering server by Model, will be populated with filters, paginating and sorting. 
 + **callBackFunc** - function, callback function to call on success response from Server. Will be called with one argument - results json.
 
-#### Paginate
+#### Important info. Getting pagination info from the server.
+  This service checks last item of server response to have .pagination key.
+  If found, last element pops from results and .pagination is used to populate pagination info.
+
+
+### Paginate
 
 Change page in paginated data
 
@@ -102,7 +109,7 @@ dataSource.paginate(page)
 **page** - page to show
 
 
-#### SortBy
+### SortBy
 
 Change data sorting field or direction. If not all data from the server shown, server request will be used.
 
@@ -111,7 +118,7 @@ dataSource.sortBy(fieldId)
 ```
 **fieldId** - field name to sort by. If same fieldId sent, sorting direction will be changed.
 
-#### Pagination Info
+### Pagination Info
 
 Returns current pagination info
 
@@ -131,7 +138,7 @@ dataSource.paginationInfo()
 
 Could be empty in case no pagination used for data.
 
-#### Sorting Info
+### Sorting Info
 
 Returns current sorting info object
 
@@ -147,7 +154,7 @@ dataSource.sortingInfo()
 }
 ```
 
-#### Is Ordered By Field
+### Is Ordered By Field
 
 Returns true if current sorting field is equal to argument
 
@@ -159,7 +166,7 @@ Arg **fieldId** string
 
 Return `boolean`
 
-#### Apply Filter
+### Apply Filter
 
 Used to send actual filtering state to the server when filtered on server
 
@@ -170,7 +177,7 @@ Returns `boolean` - true when sent to the server, false - otherwise.
 Applying filters also sets page to 1.
 
 
-#### Clear Filter
+### Clear Filter
 
 Clears current filters. Uses `clearFilter` initialization option or empty object.
 Applies cleared filters when filtered on the server.
@@ -181,7 +188,7 @@ dataSource.clearFilter()
 Returns `boolean` - true when sent to the server, false - otherwise.
 Sets page to 1.
 
-#### Filtered Rows
+### Filtered Rows
 
 Returns rows, filtered using angular.filter() with current filters object.
 Then results are sorted and paginated. If server returned more data than set in perPage
@@ -193,7 +200,7 @@ dataSource.filteredRows()
 Returns `[<Model {}>...<Model {}>]`
 
 
-#### New Record
+### New Record
 
 Builds new item of `Model` using newItemDefaults populated with sent args.
 
@@ -203,7 +210,7 @@ dataSource.newRecord(attrs)
 Returns new Model(newItemDefaults << attrs)
 
 
-#### Add
+### Add
 
 Adds arg to the top of .rows array.
 
@@ -211,7 +218,7 @@ Adds arg to the top of .rows array.
 dataSource.add(arg)
 ```
 
-#### Remove
+### Remove
 
 Removes from list object having id equal to sent id
 
@@ -219,3 +226,13 @@ Removes from list object having id equal to sent id
 dataSource.remove(id)
 ```
 Returns array with deleted item or false when not found.
+
+
+### .rows
+
+just untouched rows got from the server
+
+### .filter
+
+Filters. You can use them in filter form on the page.
+
