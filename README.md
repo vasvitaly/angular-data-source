@@ -16,7 +16,7 @@ bower install vasvitaly/angular-data-source
 angular.module('myApp', ['vasvitaly.angular-data-source']);
 ```
 
-3. In a controller 
+### In a controller 
 
 ```javascript
 // Item - is ngResource based model
@@ -39,7 +39,7 @@ controllers.controller("ItemsController",
 
 ```
 
-4. In the template
+### In the template
 ```html
 <table>
 <tr ng-repeat="row in dataSource.rows">
@@ -47,3 +47,27 @@ controllers.controller("ItemsController",
 </tr>
 </table>
 ```
+or 
+```html
+<table>
+<tr ng-repeat="row in dataSource.filteredRows()">
+
+</tr>
+</table>
+```
+
+## API
+
+### Initializing
+```javascript
+$scope.dataSource = new vvvDataSource(Model, [options]);
+```
+* *Model* - ngResource based object
+* *options* - options object
+#### options possible key-values
+  * *newItemDefaults* - object, options which will be sent for creating new item of *Model*
+  * *filter* - object, filter will be applied to rows in *filteredRows()* using angular filter() or sent to the server.
+  * *sorting* - {fieldId: 'string' desc: boolean}, used for ordering rows in *filteredRows()* and in server request.
+  * *clearFilter* - object, which will be used as base in `clearFilter` API method.
+  * *perPage* - rows limit to show, also sent to the server.
+  * *page* - page to show, also sent to the server.
