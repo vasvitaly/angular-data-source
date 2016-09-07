@@ -1,3 +1,39 @@
 <div ng-controller='HomeCtrl'>	
-	<!-- TODO: place directive call here -->
+	<h2>Phones</h2>
+  
+  <form name="search-phone">
+    <label>Name:
+      <input name="phoneName" ng-model="filter.name">
+    </label>
+    <label>Age:
+      <input name="phoneAge" ng-model="filter.age">
+    </label>
+    <button name="clear-filters" ng-click="ds.clearFilter()">Clear filters</button>
+  </form>
+
+  <h3>dataSource.filteredRows()</h3>
+  <h3>Sorting Info</h3>
+  <pre>{{ds.sortingInfo()}}</pre>
+  <table width="100%" cellpadding="5" cellspacing="0">
+  <tr ng-click="sortBy($event)">
+    <th data-column-id="id">
+      <span ng-class="{ordered: ds.isOrderedByField('id'), desc: ds.sortingInfo().desc}"></span>
+      ID</th>
+    <th data-column-id="imageUrl">Image</th>
+    <th data-column-id="name">Name</th>
+    <th data-column-id="age">Age</th>
+    <th data-column-id="snippet">Description</th>
+  </tr>
+  <tr ng-repeat="row in ds.filteredRows()">
+    <td>{{row.id}}</td>
+    <td><img ng-src="{{row.imageUrl}}" height="50"></td>
+    <td>{{row.name}}</td>
+    <td>{{row.age}}</td>
+    <td>{{row.snippet}}</td>
+  </tr>
+  </table>
+  <h3>Pagination Info</h3>
+  <pre>{{ds.paginationInfo()}}</pre>
+  <button ng-click="ds.paginate(ds.paginationInfo().page - 1)">Prev Page</button>
+  <button ng-click="ds.paginate(ds.paginationInfo().page + 1)">Next Page</button>
 </div>

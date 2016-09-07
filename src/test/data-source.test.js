@@ -285,6 +285,18 @@ describe('data-source', function() {
         expect(sut.paginationInfo().page).toEqual(20);
       });
 
+      it('should set pagination.page to 1 if sent less', function(){
+        sut.paginate(0);
+        expect(sut.paginationInfo().page).toEqual(1);
+      });
+
+      it('should set pagination.page to maxPage if sent more', function(){
+        sut.query();
+        serverPagination = null;
+        sut.paginate(8);
+        expect(sut.paginationInfo().page).toEqual(7);
+      });
+
       it('should not make server query when not serverPaginated', function(){
         sut.paginate(3);
         expect(model.query).not.toHaveBeenCalled();

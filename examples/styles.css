@@ -1,0 +1,18 @@
+th {
+  text-align: center;
+  height: 20px;
+}
+
+span.ordered {
+  float: right;
+  display: block;
+  width: 0px;
+  height: 0px;
+  border: 5px solid transparent;
+  border-bottom-color: #000;
+}
+
+span.ordered.desc {
+  border-bottom-color: transparent;
+  border-top-color: #000;
+}

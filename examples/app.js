@@ -6,7 +6,8 @@
 'use strict';
 
 angular.module('myApp', [
-'ngRoute', 'ngSanitize', 'ngTouch',		//additional angular modules
+'ngResource',
+'ngRoute', 	//additional angular modules
 'vasvitaly.angular-data-source'
 ]).
 config(['$routeProvider', '$locationProvider', '$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
@@ -19,7 +20,7 @@ config(['$routeProvider', '$locationProvider', '$compileProvider', function($rou
 	// var staticPath ='/';
 	var staticPath;
 	// staticPath ='/angular-services/angular-data-source/';		//local
-	staticPath ='/';		//nodejs (local)
+	staticPath ='/examples/';		//nodejs (local)
 	// staticPath ='/angular-data-source/';		//gh-pages
 	var appPathRoute ='/';
 	var pagesPath =staticPath+'pages/';

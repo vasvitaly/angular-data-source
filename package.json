@@ -20,7 +20,8 @@
     "karma-phantomjs-launcher": "^1.0.1"
   },
   "scripts": {
-    "test": "karma start"
+    "test": "karma start",
+    "start": "http-server -a 0.0.0.0 -p 8000"
   },
   "repository": "",
   "engines": {
