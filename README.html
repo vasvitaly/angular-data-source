@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>angular-data-source</title>
+		<style>
+			/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+sup {
+   vertical-align: super;
+   font-size: smaller;
+}
+
+sub {
+  vertical-align: sub;
+  font-size: smaller;
+}
+
+/* Generic styles */
+body {
+	background: #f5f5f5;
+  color: #222;
+  font-family: 'Palatino Linotype','Book Antiqua',Palatino,FreeSerif,serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6,
+ul, ol,
+p,
+code, pre,
+hr {
+	line-height: 1.5em;
+	margin: 1.5em 0 0.5em 0;
+}
+
+*:first-child {
+	margin-top: 0;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 3.5em;
+}
+
+h2 {
+	font-size: 2.5em;
+}
+
+h3 {
+	font-size: 2em;
+}
+
+h4 {
+	font-size: 1.5em
+}
+
+h5 {
+	font-size: 1.2em;
+}
+
+h6 {
+	font-size: 1em;
+}
+
+/* Lists */
+ul, ol {
+	padding-left: 2em;
+}
+
+ul {
+	list-style-type: disc;	
+}
+
+ol {
+	list-style-type: decimal;
+}
+
+/* Code and pre */
+code, pre {
+	font-family: "Bitstream Vera Sans Mono", "Courier", monospace;
+}
+code {
+	background: none repeat scroll 0 0 #F8F8FF;
+  border: 1px solid #DEDEDE;
+  border-radius: 3px 	;
+  padding: 0 0.2em;
+}
+pre {
+	border-left: 5px solid #eee;
+	margin-left: 2em;	
+	padding-left: 1em;
+}
+pre > code {
+	background: transparent;
+	border: none;
+	padding: 0;
+}
+
+/* Links */
+a {
+  color: #261A3B;
+}
+
+a:visited {
+  color: #261A3B;
+}
+
+/* Inlines */
+strong {
+	font-weight: bold;
+}
+
+em {
+	font-style: italic;
+}
+
+/* Container */
+.container {
+	background: #FFF;
+	padding: 30px 50px;
+	margin: 0 auto;
+	width: 850px;
+}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1 id="angular-data-source">angular-data-source</h1>
+<p>Simple data-source service with filtering, sorting and paginating. Designed to work with angular-resource models.</p>
+<h2 id="install">Install</h2>
+<pre><code class="lang-shell">bower install vasvitaly/angular-data-source
+</code></pre>
+<h2 id="usage">Usage</h2>
+<ol>
+<li>Include the <code>data-source.js</code> script into your app.</li>
+<li>Add <code>vasvitaly.angular-data-source</code> as a module dependency to your app.</li>
+</ol>
+<pre><code class="lang-javascript">angular.module(&#39;myApp&#39;, [&#39;vasvitaly.angular-data-source&#39;]);
+</code></pre>
+<h3 id="in-a-controller">In a controller</h3>
+<pre><code class="lang-javascript">// Item - is ngResource based model
+
+controllers.controller(&quot;ItemsController&quot;, 
+[&#39;$scope&#39;, &#39;vvvDataSource&#39;, &#39;Item&#39;, function($scope, vvvDataSource, Item) {
+  var dsOptions = {
+    newItemDefaults: {name: &#39;&#39;, colors: [{name: &#39;&#39;, name_lat: &#39;&#39;, show_in_list: 0}]},
+    filter: {name: &#39;Abr&#39;, surName: &#39;Bar&#39;},
+    sorting: {fieldId: &#39;createdAt&#39;, desc: true},
+    clearFilter: {name: &#39;&#39;, surName: &#39;&#39;},
+    perPage: 20,
+    page: 1
+  }
+
+  $scope.dataSource = new vvvDataSource(Item, dsOptions);
+  $scope.dataSource.query();
+
+}]);
+</code></pre>
+<h3 id="in-the-template">In the template</h3>
+<pre><code class="lang-html">&lt;table&gt;
+&lt;tr ng-repeat=&quot;row in dataSource.rows&quot;&gt;
+
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+<p>or </p>
+<pre><code class="lang-html">&lt;table&gt;
+&lt;tr ng-repeat=&quot;row in dataSource.filteredRows()&quot;&gt;
+
+&lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+<h2 id="api">API</h2>
+<h3 id="initializing">Initializing</h3>
+<pre><code class="lang-javascript">$scope.dataSource = new vvvDataSource(Model, [options]);
+</code></pre>
+<ul>
+<li><em>Model</em> - ngResource based object</li>
+<li><em>options</em> - options object</li>
+</ul>
+<h4 id="options-possible-key-values">options possible key-values</h4>
+<ul>
+<li><em>newItemDefaults</em> - object, options which will be sent for creating new item of <em>Model</em></li>
+<li><p><em>filter</em> - object, filter will be applied to rows in <code>filteredRows()</code> using angular filter() or sent to the server.
+You can use your own registered filters using their name double underscored as key in filters.
+Example:
+ Let have own filter registered as &#39;startingWith&#39;. 
+ filters `
+  {</p>
+<pre><code>__startingWith: anyTypeValue
+</code></pre><p>  }
+ will use startingWith filter and send to it anyTypeValue as second argument.</p>
+</li>
+<li><p><em>sorting</em> - object, <code>{fieldId: &#39;string&#39; desc: boolean}</code>, used for ordering rows in <em>filteredRows()</em> and in server request.</p>
+</li>
+<li><em>clearFilter</em> - object, which will be used as base in <code>clearFilter</code> API method.</li>
+<li><em>perPage</em> - rows limit to show, also sent to the server.</li>
+<li><em>page</em> - page to show, also sent to the server.</li>
+</ul>
+<h3 id="initial-request">Initial request</h3>
+<p>Makes first request to the server to get rows.</p>
+<pre><code class="lang-javascript">dataSource.query([options], [callBackFunc])
+</code></pre>
+<ul>
+<li><strong>options</strong> - object, base options used for quering server by Model, will be populated with filters, paginating and sorting. </li>
+<li><strong>callBackFunc</strong> - function, callback function to call on success response from Server. Will be called with one argument - results json.</li>
+</ul>
+<h4 id="paginate">Paginate</h4>
+<p>Change page in paginated data</p>
+<pre><code class="lang-javascript">dataSource.paginate(page)
+</code></pre>
+<p><strong>page</strong> - page to show</p>
+<h4 id="sortby">SortBy</h4>
+<p>Change data sorting field or direction. If not all data from the server shown, server request will be used.</p>
+<pre><code class="lang-javascript">dataSource.sortBy(fieldId)
+</code></pre>
+<p><strong>fieldId</strong> - field name to sort by. If same fieldId sent, sorting direction will be changed.</p>
+<h4 id="pagination-info">Pagination Info</h4>
+<p>Returns current pagination info</p>
+<pre><code class="lang-javascript">dataSource.paginationInfo()
+</code></pre>
+<p><strong>Returns</strong> object </p>
+<pre><code class="lang-javascript">{
+  totalCount: number, 
+  perPage: number, 
+  page: number, 
+  locally: boolean
+}
+</code></pre>
+<p>Could be empty in case no pagination used for data.</p>
+<h4 id="sorting-info">Sorting Info</h4>
+<p>Returns current sorting info object</p>
+<pre><code class="lang-javascript">dataSource.sortingInfo()
+</code></pre>
+<p><strong>Returns</strong> object </p>
+<pre><code class="lang-javascript">{
+  fieldId: string, 
+  desc: boolean, 
+}
+</code></pre>
+<h4 id="is-ordered-by-field">Is Ordered By Field</h4>
+<p>Returns true if current sorting field is equal to argument</p>
+<pre><code class="lang-javascript">dataSource.isOrderedByField(fieldId)
+</code></pre>
+<p>Arg <strong>fieldId</strong> string </p>
+<p>Return <code>boolean</code></p>
+<h4 id="apply-filter">Apply Filter</h4>
+<p>Used to send actual filtering state to the server when filtered on server</p>
+<pre><code class="lang-javascript">dataSource.applyFilter()
+</code></pre>
+<p>Returns <code>boolean</code> - true when sent to the server, false - otherwise.
+Applying filters also sets page to 1.</p>
+<h4 id="clear-filter">Clear Filter</h4>
+<p>Clears current filters. Uses <code>clearFilter</code> initialization option or empty object.
+Applies cleared filters when filtered on the server.</p>
+<pre><code class="lang-javascript">dataSource.clearFilter()
+</code></pre>
+<p>Returns <code>boolean</code> - true when sent to the server, false - otherwise.
+Sets page to 1.</p>
+<h4 id="filtered-rows">Filtered Rows</h4>
+<p>Returns rows, filtered using angular.filter() with current filters object.
+Then results are sorted and paginated. If server returned more data than set in perPage
+local paginating will be used.</p>
+<pre><code class="lang-javascript">dataSource.filteredRows()
+</code></pre>
+<p>Returns <code>[&lt;Model {}&gt;...&lt;Model {}&gt;]</code></p>
+<h4 id="new-record">New Record</h4>
+<p>Builds new item of <code>Model</code> using newItemDefaults populated with sent args.</p>
+<pre><code class="lang-javascript">dataSource.newRecord(attrs)
+</code></pre>
+<p>Returns new Model(newItemDefaults &lt;&lt; attrs)</p>
+<h4 id="add">Add</h4>
+<p>Adds arg to the top of .rows array.</p>
+<pre><code class="lang-javascript">dataSource.add(arg)
+</code></pre>
+<h4 id="remove">Remove</h4>
+<p>Removes from list object having id equal to sent id</p>
+<pre><code class="lang-javascript">dataSource.remove(id)
+</code></pre>
+<p>Returns array with deleted item or false when not found.</p>
+
+		</div>
+
+		<script></script>
+	</body>
+</html>

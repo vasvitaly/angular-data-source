@@ -174,6 +174,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
 
       
       self.paginate = function(page) {
+        if (!page) return false;
         if (page < 1) page = 1;
         if (maxPage() && page > maxPage()) page = maxPage();
         if (pagination.page == page) return false;
@@ -185,14 +186,6 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
         return true;
       };
 
-      self.paginationInfo = function(){
-        return pagination;
-      };
-
-      self.sortingInfo = function(){
-        return sorting;
-      };
-      
       self.sortBy = function(fieldId) {
         if (sorting.fieldId === fieldId) {
           sorting.desc = !sorting.desc;
@@ -205,6 +198,14 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
           doQuery();
         }
         return true;
+      };
+      
+      self.paginationInfo = function(){
+        return pagination;
+      };
+
+      self.sortingInfo = function(){
+        return sorting;
       };
       
       self.isOrderedByField = function(fieldId) {
@@ -259,11 +260,12 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       };
 
       self.remove = function(id) {
-        return angular.forEach(self.rows, function(row, idx) {
+        angular.forEach(self.rows, function(row, idx) {
           if (row.id === id) {
             return self.rows.splice(idx, 1);
           }
         });
+        return false;
       };
 
       return self;
