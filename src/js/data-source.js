@@ -151,7 +151,10 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
 
       var getPaged = function(data) {
         var begin;
-        pagination.totalCount = data.length;
+        if (!pagination.totalCount || pagination.totalCount != data.length) {
+          pagination.totalCount = data.length;
+          pagination.page = 1;
+        };
         if (pagination.perPage == null) {
           pagination.perPage = DEFAULTS.perPage;
         }
