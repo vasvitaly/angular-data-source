@@ -1,7 +1,7 @@
 {
   "name": "angular-data-source",
   "author": "Vitali Vasileuski",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Data source provider for angular",
   "homepage": "",
   "dependencies": {},
@@ -25,6 +25,6 @@
   },
   "repository": "",
   "engines": {
-    "node": "0.10.10"
+    "node": "4.2.6"
   }
 }

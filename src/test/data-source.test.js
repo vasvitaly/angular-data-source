@@ -286,6 +286,11 @@ describe('data-source', function() {
       });
 
       it('should set pagination.page to 1 if sent less', function(){
+        sut.paginate(-1);
+        expect(sut.paginationInfo().page).toEqual(1);
+      });
+
+      it('should set pagination.page to 1 if sent less', function(){
         sut.paginate(0);
         expect(sut.paginationInfo().page).toEqual(1);
       });
@@ -517,13 +522,13 @@ describe('data-source', function() {
         serverPagination = {
           totalCount: 14,
           perPage: 2,
-          page: 1
+          page: 2
         };
         sut = new dataSource(model, options);
-        sut.query();
       });
 
       it('returns limited amout of rows', function(){
+        sut.query();
         expect(sut.filteredRows().length).toEqual(2);
       });
 
@@ -531,8 +536,39 @@ describe('data-source', function() {
         var expectedObj = jasmine.objectContaining({
           locally: true,
           perPage: 2,
+          page: 1,
           totalCount: 4
         });
+        sut.query();
+        sut.filteredRows();
+        expect(sut.paginationInfo()).toEqual(expectedObj);
+      });
+
+      it('updates only not actual pagination info', function(){
+        serverPagination.totalCount = modelQueryRes.length;
+          
+        var expectedObj = jasmine.objectContaining({
+          locally: true,
+          perPage: 2,
+          totalCount: 4,
+          page: 2
+        });
+        sut.query();
+        sut.filteredRows();
+        expect(sut.paginationInfo()).toEqual(expectedObj);
+      });
+
+      it('updates only not actual pagination info', function(){
+        serverPagination.totalCount = modelQueryRes.length;
+        serverPagination.page = null;
+          
+        var expectedObj = jasmine.objectContaining({
+          locally: true,
+          perPage: 2,
+          totalCount: 4,
+          page: 1
+        });
+        sut.query();
         sut.filteredRows();
         expect(sut.paginationInfo()).toEqual(expectedObj);
       });
@@ -650,17 +686,17 @@ describe('data-source', function() {
   });
 
   describe('removes item by id from collection', function(){
-    var expectedObj; 
+    var expectedObj, removeFunc; 
     
     beforeEach(function(){
-      expectedObj = [{id: 1}, {id: 20}, {id: 4}, {id: 5}];
+      removeFunc = jasmine.createSpy('remove');
+      expectedObj = [{id: 1}, {id: 20}, {id: 4, $remove: removeFunc}, {id: 5}];
       modelQueryRes = angular.copy(expectedObj);
       sut = new dataSource(model);
       sut.query();
     });
 
     it('item should be removed from the rows', function(){
-      expect(sut.rows[2]).toEqual(expectedObj[2]);
       sut.remove(4);
       expect(sut.rows[2]).toEqual(expectedObj[3]);
     });
@@ -669,6 +705,245 @@ describe('data-source', function() {
       sut.remove(20);
       expect(sut.rows[1]).toEqual(expectedObj[2]);
     });
+
+    describe('when removeOnServer flag is true', function(){
+      var removeArgs;
+
+      beforeEach(function(){
+        sut.remove(4, true);
+      });
+
+      it('should call $remove method on item', function(){
+        expect(removeFunc).toHaveBeenCalled();
+      });
+
+      it('should remove item on success response', function(){
+        removeArgs = removeFunc.calls.mostRecent().args;
+        
+        expect(sut.rows[2]).toEqual(expectedObj[2]);
+        removeArgs[1]();
+        expect(sut.rows[2]).toEqual(expectedObj[3]);
+      });
+
+      describe('on server error' ,function(){
+        var errorResponse, errorCallback, lastMessage;
+
+        beforeEach(function(){
+          errorResponse = {};
+          removeArgs = removeFunc.calls.mostRecent().args;
+          errorCallback = removeArgs[2];
+        });
+
+        it('should not remove item from the list', function(){
+          errorCallback();
+          expect(sut.rows[2]).toEqual(expectedObj[2]);
+        });
+
+        it('should add error message 404 to messages list', function(){
+          errorResponse = {'status': 404};
+          errorCallback(errorResponse);
+          lastMessage = sut.messages.pop();
+          
+          expect(lastMessage).toEqual({"error": "404"});
+        });
+
+        it('should add error message 500 to messages list', function(){
+          errorResponse = {status: 500, data: {errors: 'Unexpected error happend'}};
+          errorCallback(errorResponse);
+          expect(sut.messages.pop()).toEqual({"error": "500"});
+        });
+
+        it('should add error message from data.errors to messages list', function(){
+          errorResponse = {status: 200, data: {errors: ['You cant remove this item!', 'Item is protected.']}}
+          errorCallback(errorResponse);
+          expect(sut.messages.pop()).toEqual({"error": "Item is protected."});
+          expect(sut.messages.pop()).toEqual({"error": "You cant remove this item!"});
+        });
+
+
+        it('should add error message from data.errors to messages list', function(){
+          errorResponse = {status: 200, data: {errors: [['You cant remove this item!', 'Item is protected.']]}}
+          errorCallback(errorResponse);
+          expect(sut.messages.pop()).toEqual({"error": "You cant remove this item!\nItem is protected."});
+        });
+
+        it('should add default error message to messages list when no message from server', function(){
+          errorResponse = {status: 505};
+          errorCallback(errorResponse);
+          expect(sut.messages.pop()).toEqual({"error": "Server is down. Sorry."});
+        });
+
+      });
+
+
+    })
+
+  });
+
+  describe('saves item', function(){
+    var item, saveFunc, createFunc; 
+    var saveArgs, sCallback, eCallback, addToTheList, successCallBack, errorCallback;
+    
+    beforeEach(function(){
+      saveFunc = jasmine.createSpy('save');
+      createFunc = jasmine.createSpy('create');
+      item = { name: 'new item', '$save': saveFunc, '$create': createFunc };
+      sut = new dataSource(model);
+      sut.query();
+    });
+
+    it('calls item create method when item has no id - so its new', function(){
+      sut.save(item);
+      expect(saveFunc).not.toHaveBeenCalled();
+      expect(createFunc).toHaveBeenCalled();
+    });
+
+    it('calls item save method when item has id', function(){
+      item.id = 123;
+      sut.save(item);
+      expect(saveFunc).toHaveBeenCalled();
+      expect(createFunc).not.toHaveBeenCalled();
+    });
+
+    describe('on success server response', function(){
+      
+      beforeEach(function(){
+        successCallBack = jasmine.createSpy('success');
+        errorCallback = jasmine.createSpy('error');
+        addToTheList = false;
+      });
+
+      describe('for new item', function(){
+        
+        it('pushes item to the list when addToTheList flag is true', function(){
+          addToTheList = true;
+          saveItem();
+          sCallback();
+          expect(sut.rows[0]).toEqual(item);
+        });
+
+        it('doesnt push item to the list when addToTheList flag is false', function(){
+          addToTheList = false;
+          saveItem();
+          sCallback();
+          expect(sut.rows[0]).not.toEqual(item);
+        });
+
+        it('pushes success message to the messages pool', function(){
+          saveItem();
+          sCallback();
+          expect(sut.messages.pop()).toEqual({"success": 'added'});
+        });
+
+        it('calls successCallBack', function(){
+          saveItem();
+          sCallback();
+          expect(successCallBack).toHaveBeenCalledWith(item);
+        });
+
+        it('does not calls errorCallBack', function(){
+          saveItem();
+          sCallback();
+          expect(errorCallback).not.toHaveBeenCalled();
+        });
+
+      });
+      
+      describe('for existing item', function(){
+
+        beforeEach(function(){
+          item.id = 123;
+          addToTheList = true;
+          saveItem();
+          sCallback();
+        })
+
+        it('dont pushes item to the list with any addToTheList flag', function(){
+          expect(sut.rows[0]).not.toEqual(item);
+        });
+
+        it('pushes success message to the messages pool', function(){
+          expect(sut.messages.pop()).toEqual({"success": 'updated'});
+        });
+
+        it('calls successCallBack', function(){
+          expect(successCallBack).toHaveBeenCalledWith(item);
+        });
+        
+        it('does not calls errorCallBack', function(){
+          saveItem();
+          sCallback();
+          expect(errorCallback).not.toHaveBeenCalled();
+        });
+
+      });
+
+    });
+
+    describe('on error server response', function(){
+      var errorResponse;
+
+      beforeEach(function(){
+        successCallBack = jasmine.createSpy('success');
+        errorCallback = jasmine.createSpy('error');
+        addToTheList = false;
+        errorResponse = {
+          data: {
+            error_fields: {'name': 'should not be empty'},
+            errors: ['Name field should not be empty', ['Not all fields filled','please fill all']]
+          }
+        };
+      });
+
+      describe('for new item', function(){
+
+        beforeEach(function(){
+          saveItem();
+          eCallback(errorResponse);
+        });
+
+        it('applies errors to the item', function(){
+          expect(item.errors).toEqual(errorResponse.data.error_fields);
+        });
+
+        it('pushed errors to the messages', function(){
+          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[1].join("\n")});
+          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[0]});
+        });
+
+      });
+
+      describe('for existing item', function(){
+
+        beforeEach(function(){
+          item.id = 123;
+          saveItem();
+          eCallback(errorResponse);
+        });
+
+        it('applies errors to the item', function(){
+          expect(item.errors).toEqual(errorResponse.data.error_fields);
+        });
+
+        it('pushed errors to the messages', function(){
+          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[1].join("\n")});
+          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[0]});
+        });
+
+      });
+
+    });
+
+    function saveItem(){
+      sut.save(item, addToTheList, successCallBack, errorCallback);
+      if (item.id) {
+        saveArgs = saveFunc.calls.mostRecent().args;
+      } else {
+        saveArgs = createFunc.calls.mostRecent().args;
+      }
+      sCallback = saveArgs[1];
+      eCallback = saveArgs[2];
+    }
 
   });
 

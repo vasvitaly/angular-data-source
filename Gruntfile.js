@@ -87,7 +87,7 @@ module.exports = function(grunt) {
       },
       karma: {
         unit: {
-          configFile: publicPathRelativeRoot+'config/karma.conf.js',
+          configFile: publicPathRelativeRoot + 'config/karma.conf.js',
           singleRun: true,
           browsers: ['PhantomJS']
         }

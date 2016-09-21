@@ -29,6 +29,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       filterOnServer = false;
       
       self.filter = options.filter || {};
+      self.messages = [];
       sorting = angular.extend({
         fieldId: '',
         desc: false
@@ -166,6 +167,29 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
         return $filter('limitTo')(data, pagination.perPage, begin);
       };
 
+      var pushMessage = function(eventType, message) {
+        var mess = {};
+        mess[eventType] = message;
+        self.messages.push(mess);
+      };
+
+      var applyErrors = function(row, response) {
+        if (response && response.data) {
+          if (response.data.errors) {
+            angular.forEach(response.data.errors, function(errors) {
+              var message = errors;
+              if (angular.isArray(message)) {
+                message = message.join("\n");
+              }
+              pushMessage("error", message);
+            });
+          }
+          if (response.data.error_fields) {
+            row.errors = response.data.error_fields;
+          }
+        }
+      };
+
 // Public API
 
       self.query = function(opts, callBackFunc) {
@@ -177,8 +201,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
 
       
       self.paginate = function(page) {
-        if (!page) return false;
-        if (page < 1) page = 1;
+        if (!page || page < 1) page = 1;
         if (maxPage() && page > maxPage()) page = maxPage();
         if (pagination.page == page) return false;
         
@@ -258,18 +281,81 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
         return new modelClass(data);
       };
 
+      self.save = function(row, addToTheList, successCallBack, errorsCallBack) {
+        if (row.id) {
+          row.$save({}, function(){
+            pushMessage("success", "updated");
+            if (successCallBack && angular.isFunction(successCallBack)) {
+              successCallBack(row);
+            }
+            return false;
+          }, function(response) {
+            applyErrors(row, response);
+            if (errorsCallBack && angular.isFunction(errorsCallBack)) {
+              errorsCallBack(row, response);
+            }
+            return false;
+          });
+        } else {
+          row.$create({}, function(){
+            if (addToTheList) {
+              self.add(row);
+            }
+            pushMessage("success", "added");
+            if (successCallBack && angular.isFunction(successCallBack)) {
+              successCallBack(row);
+            }
+            return false;
+          }, function(response) {
+            applyErrors(row, response);
+            if (errorsCallBack && angular.isFunction(errorsCallBack)) {
+              errorsCallBack(row, response);
+            }
+            return false;
+          });
+        }
+      };
+
+
       self.add = function(row) {
         return self.rows.unshift(row);
       };
 
-      self.remove = function(id) {
+      self.remove = function(id, removeOnServer) {
         angular.forEach(self.rows, function(row, idx) {
           if (row.id === id) {
-            return self.rows.splice(idx, 1);
+            if (removeOnServer) {
+              row.$remove({}, function(){
+                self.rows.splice(idx, 1);
+              }, function(response) {
+                if (response) {
+                  if (response.status == 404) {
+                    pushMessage("error", "404");
+                  } else if (response.status == 500) {
+                    pushMessage("error", "500");
+                  } else if (response.data && response.data.errors) {
+                    angular.forEach(response.data.errors, function(errors) {
+                      var message = errors;
+                      if (angular.isArray(errors)) {
+                        message = errors.join("\n");
+                      }
+                      pushMessage("error", message);
+                    });
+                  } else {
+                    pushMessage("error", "Server is down. Sorry.");
+                  }
+                }
+                return false;
+              });
+            } else {
+              return self.rows.splice(idx, 1);
+            }
           }
         });
         return false;
       };
+
+
 
       return self;
     };
