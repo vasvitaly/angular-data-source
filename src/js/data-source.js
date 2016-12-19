@@ -29,7 +29,10 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       filterOnServer = false;
       
       self.filter = options.filter || {};
-      self.messages = [];
+      self.messages = {
+        'error': [],
+        'success': []
+      };
       sorting = angular.extend({
         fieldId: '',
         desc: false
@@ -168,7 +171,6 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       };
 
       var pushMessage = function(eventType, message) {
-        var mess = {};
         if (!self.messages[eventType]) {
           self.messages[eventType] = []
         }
