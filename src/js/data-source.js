@@ -169,8 +169,10 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
 
       var pushMessage = function(eventType, message) {
         var mess = {};
-        mess[eventType] = message;
-        self.messages.push(mess);
+        if (!self.messages[eventType]) {
+          self.messages[eventType] = []
+        }
+        self.messages[eventType].push(message);
       };
 
       var applyErrors = function(row, response) {

@@ -742,35 +742,35 @@ describe('data-source', function() {
         it('should add error message 404 to messages list', function(){
           errorResponse = {'status': 404};
           errorCallback(errorResponse);
-          lastMessage = sut.messages.pop();
+          lastMessage = sut.messages['error'].pop();
           
-          expect(lastMessage).toEqual({"error": "404"});
+          expect(lastMessage).toEqual("404");
         });
 
         it('should add error message 500 to messages list', function(){
           errorResponse = {status: 500, data: {errors: 'Unexpected error happend'}};
           errorCallback(errorResponse);
-          expect(sut.messages.pop()).toEqual({"error": "500"});
+          expect(sut.messages['error'].pop()).toEqual("500");
         });
 
         it('should add error message from data.errors to messages list', function(){
           errorResponse = {status: 200, data: {errors: ['You cant remove this item!', 'Item is protected.']}}
           errorCallback(errorResponse);
-          expect(sut.messages.pop()).toEqual({"error": "Item is protected."});
-          expect(sut.messages.pop()).toEqual({"error": "You cant remove this item!"});
+          expect(sut.messages["error"].pop()).toEqual("Item is protected.");
+          expect(sut.messages["error"].pop()).toEqual("You cant remove this item!");
         });
 
 
         it('should add error message from data.errors to messages list', function(){
           errorResponse = {status: 200, data: {errors: [['You cant remove this item!', 'Item is protected.']]}}
           errorCallback(errorResponse);
-          expect(sut.messages.pop()).toEqual({"error": "You cant remove this item!\nItem is protected."});
+          expect(sut.messages["error"].pop()).toEqual("You cant remove this item!\nItem is protected.");
         });
 
         it('should add default error message to messages list when no message from server', function(){
           errorResponse = {status: 505};
           errorCallback(errorResponse);
-          expect(sut.messages.pop()).toEqual({"error": "Server is down. Sorry."});
+          expect(sut.messages["error"].pop()).toEqual("Server is down. Sorry.");
         });
 
       });
@@ -832,7 +832,7 @@ describe('data-source', function() {
         it('pushes success message to the messages pool', function(){
           saveItem();
           sCallback();
-          expect(sut.messages.pop()).toEqual({"success": 'added'});
+          expect(sut.messages["success"].pop()).toEqual('added');
         });
 
         it('calls successCallBack', function(){
@@ -863,7 +863,7 @@ describe('data-source', function() {
         });
 
         it('pushes success message to the messages pool', function(){
-          expect(sut.messages.pop()).toEqual({"success": 'updated'});
+          expect(sut.messages["success"].pop()).toEqual('updated');
         });
 
         it('calls successCallBack', function(){
@@ -907,8 +907,8 @@ describe('data-source', function() {
         });
 
         it('pushed errors to the messages', function(){
-          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[1].join("\n")});
-          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[0]});
+          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[1].join("\n"));
+          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[0]);
         });
 
       });
@@ -926,8 +926,8 @@ describe('data-source', function() {
         });
 
         it('pushed errors to the messages', function(){
-          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[1].join("\n")});
-          expect(sut.messages.pop()).toEqual({'error': errorResponse.data.errors[0]});
+          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[1].join("\n"));
+          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[0]);
         });
 
       });
