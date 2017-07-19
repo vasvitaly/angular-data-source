@@ -288,12 +288,14 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       self.save = function(row, addToTheList, successCallBack, errorsCallBack) {
         if (row.id) {
           row.$save({}, function(){
+            delete(row.saving);
             pushMessage("success", "updated");
             if (successCallBack && angular.isFunction(successCallBack)) {
               successCallBack(row);
             }
             return false;
           }, function(response) {
+            delete(row.saving);
             applyErrors(row, response);
             if (errorsCallBack && angular.isFunction(errorsCallBack)) {
               errorsCallBack(row, response);
@@ -302,6 +304,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
           });
         } else {
           row.$create({}, function(){
+            delete(row.saving);
             if (addToTheList) {
               self.add(row);
             }
@@ -311,6 +314,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
             }
             return false;
           }, function(response) {
+            delete(row.saving);
             applyErrors(row, response);
             if (errorsCallBack && angular.isFunction(errorsCallBack)) {
               errorsCallBack(row, response);
@@ -318,6 +322,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
             return false;
           });
         }
+        row.saving = true;
       };
 
 
