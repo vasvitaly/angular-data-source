@@ -33,6 +33,8 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
         'error': [],
         'success': []
       };
+      self.inProgress = false;
+      
       sorting = angular.extend({
         fieldId: '',
         desc: false
@@ -47,6 +49,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
         angular.copy(baseOptions, options);
         getOptions(options);
       
+        self.inProgress = true;
         self.rows = modelClass.query(options, function(results) {
           var pinfo;
           if (results && results.length && results[results.length - 1].pagination) {
@@ -59,6 +62,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
           if (callBack) {
             callBack(results);
           }
+          self.inProgress = false;
           return results;
         });
         return self.rows;
