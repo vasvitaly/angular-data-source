@@ -84,8 +84,10 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       };
 
       var isPaginated = function() {
-        if ((!pagination.totalCount && pagination.page <= 1) || 
-            !pagination.perPage || !pagination.page) {
+        if (pagination.page > 1 || !self.rows || !self.rows.length) {
+          return true;
+        }
+        if ((!pagination.totalCount) || !pagination.perPage || !pagination.page) {
           return false;
         }
         return maxPage() > 1;
