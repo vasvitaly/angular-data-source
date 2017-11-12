@@ -71,6 +71,7 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       var getOptions = function(options) {
         if (isPaginated()) {
           options.page = pagination.page;
+          options.perPage = pagination.perPage;
         }
         if (isSorted()) {
           options.sortby = sorting.fieldId;
@@ -83,9 +84,8 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       };
 
       var isPaginated = function() {
-        if (!pagination.totalCount || 
-            !pagination.perPage || 
-            !pagination.page) {
+        if ((!pagination.totalCount && pagination.page <= 1) || 
+            !pagination.perPage || !pagination.page) {
           return false;
         }
         return maxPage() > 1;
