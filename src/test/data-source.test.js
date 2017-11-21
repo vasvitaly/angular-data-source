@@ -22,7 +22,7 @@ angular.module('customFilters', []).filter('greaterThan', function() {
 
 describe('data-source', function() {
   'use strict';
-  var sut, options, model, dataSource, modelQueryRes, serverPagination;
+  var sut, options, sentOptions, model, dataSource, modelQueryRes, serverPagination;
 
   // load the tabs code
   beforeEach(module('vasvitaly.angular-data-source'));
@@ -31,9 +31,11 @@ describe('data-source', function() {
   beforeEach(inject(function(vvvDataSource){
     serverPagination = null;
     modelQueryRes = null;
+    sentOptions = null;
     dataSource = vvvDataSource;
     model = jasmine.createSpyObj('model', ['query']);
     model.query.and.callFake(function(opts, callBackFunc){
+      sentOptions = opts
       if (modelQueryRes == void 0 || modelQueryRes == null) {
         modelQueryRes = [];
       }
@@ -178,10 +180,6 @@ describe('data-source', function() {
         expect(sentOpts).not.toEqual(jasmine.objectContaining({sortby: sut.sortingInfo().fieldId, desc: sut.sortingInfo().desc}));
       });
 
-      it('should not pass page', function(){
-        expect(sentOpts).not.toEqual(jasmine.objectContaining({page: jasmine.any(Number)}));
-      });
-
     });
 
 
@@ -281,8 +279,8 @@ describe('data-source', function() {
       });
     
       it('should set pagination.page to sent arg', function(){
-        sut.paginate(20);
-        expect(sut.paginationInfo().page).toEqual(20);
+        sut.paginate(3);
+        expect(sentOptions.page).toEqual(3);
       });
 
       it('should set pagination.page to 1 if sent less', function(){
@@ -300,11 +298,6 @@ describe('data-source', function() {
         serverPagination = null;
         sut.paginate(8);
         expect(sut.paginationInfo().page).toEqual(7);
-      });
-
-      it('should not make server query when not serverPaginated', function(){
-        sut.paginate(3);
-        expect(model.query).not.toHaveBeenCalled();
       });
 
       describe('when serverPaginated', function(){
@@ -400,7 +393,7 @@ describe('data-source', function() {
 
         it('set page 1 and do query', function(){
           var expectedOptions = jasmine.objectContaining({page:1});
-          expect(model.query).not.toHaveBeenCalledWith(expectedOptions, jasmine.any(Function));
+          expect(model.query).toHaveBeenCalledWith(expectedOptions, jasmine.any(Function));
         });
 
         it('returns true', function(){
@@ -907,8 +900,8 @@ describe('data-source', function() {
         });
 
         it('pushed errors to the messages', function(){
-          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[1].join("\n"));
-          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[0]);
+          expect(sut.messages['error'].pop()).toEqual([1, errorResponse.data.errors[1].join("\n")]);
+          expect(sut.messages['error'].pop()).toEqual([0, errorResponse.data.errors[0]]);
         });
 
       });
@@ -926,8 +919,8 @@ describe('data-source', function() {
         });
 
         it('pushed errors to the messages', function(){
-          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[1].join("\n"));
-          expect(sut.messages['error'].pop()).toEqual(errorResponse.data.errors[0]);
+          expect(sut.messages['error'].pop()).toEqual([1, errorResponse.data.errors[1].join("\n")]);
+          expect(sut.messages['error'].pop()).toEqual([0, errorResponse.data.errors[0]]);
         });
 
       });

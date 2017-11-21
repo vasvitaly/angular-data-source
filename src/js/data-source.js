@@ -186,12 +186,12 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
       var applyErrors = function(row, response) {
         if (response && response.data) {
           if (response.data.errors) {
-            angular.forEach(response.data.errors, function(errors) {
+            angular.forEach(response.data.errors, function(errors, field) {
               var message = errors;
               if (angular.isArray(message)) {
                 message = message.join("\n");
               }
-              pushMessage("error", message);
+              pushMessage("error", [field, message]);
             });
           }
           if (response.data.error_fields) {
