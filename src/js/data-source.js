@@ -248,8 +248,11 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
         return sorting.fieldId === fieldId;
       };
 
-      self.applyFilter = function() {
-        if (filterOnServer) {
+      self.applyFilter = function(forceOnServer) {
+        if ('undefined' == typeof(forceOnServer)) {
+          forceOnServer = false
+        }
+        if (filterOnServer || forceOnServer) {
           pagination.page = 1;
           doQuery();
           return true;
