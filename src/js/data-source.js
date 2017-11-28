@@ -200,6 +200,18 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
         }
       };
 
+      var updateRow = function(data) {
+        if (!data || !data.id) return false; 
+        
+        for (var i in self.rows) {
+          if (self.rows[i] && self.rows[i].id == data.id) {
+            self.rows[i] = angular.extend(self.rows[i], data);
+            return self.rows[i];
+          }
+        }
+        return false;
+      };
+
 // Public API
 
       self.query = function(opts, callBackFunc) {
@@ -296,7 +308,8 @@ angular.module('vasvitaly.angular-data-source', []).factory('vvvDataSource', [
 
       self.save = function(row, addToTheList, successCallBack, errorsCallBack) {
         if (row.id) {
-          row.$save({}, function(){
+          row.$save({}, function(data){
+            if (data && data.id) updateRow(data);
             delete(row.saving);
             pushMessage("success", "updated");
             if (successCallBack && angular.isFunction(successCallBack)) {

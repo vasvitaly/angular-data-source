@@ -780,7 +780,31 @@ describe('data-source', function() {
     beforeEach(function(){
       saveFunc = jasmine.createSpy('save');
       createFunc = jasmine.createSpy('create');
-      item = { name: 'new item', '$save': saveFunc, '$create': createFunc };
+      item = { 
+        name: 'new item', 
+        active: true, 
+        created_at:'2017-01-01 10:00',
+       '$save': saveFunc, '$create': createFunc };
+      modelQueryRes = [
+        { 
+          id: 1,
+          name: 'first item', 
+          active: false, 
+          created_at:'2017-01-01 10:00'
+        },
+        { 
+          id: 123,
+          name: '123th item', 
+          active: false, 
+          created_at:'2017-12-03 10:00'
+        },
+        { 
+          id: 2,
+          name: 'second item', 
+          active: true, 
+          created_at:'2017-02-01 10:00'
+        },
+      ];
       sut = new dataSource(model);
       sut.query();
     });
@@ -843,15 +867,16 @@ describe('data-source', function() {
       });
       
       describe('for existing item', function(){
+        var expectedObj;
 
         beforeEach(function(){
           item.id = 123;
           addToTheList = true;
           saveItem();
-          sCallback();
+          sCallback(item);
         })
 
-        it('dont pushes item to the list with any addToTheList flag', function(){
+        it('does not push item to the list with any addToTheList flag', function(){
           expect(sut.rows[0]).not.toEqual(item);
         });
 
@@ -867,6 +892,11 @@ describe('data-source', function() {
           saveItem();
           sCallback();
           expect(errorCallback).not.toHaveBeenCalled();
+        });
+
+        it('update data row with response data, if received', function(){
+          expectedObj = jasmine.objectContaining(item);
+          expect(sut.rows[1]).toEqual(expectedObj);
         });
 
       });
